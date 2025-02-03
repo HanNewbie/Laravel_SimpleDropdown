@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Category;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ class Subcategory extends Model
     {
         return $this->belongsTo(Category::class, 'id_kategori', 'id_kategori');
     }
-
+    
     public function layanan()
     {
         return $this->hasMany(Layanan::class, 'id_subkategori', 'id_subkategori');

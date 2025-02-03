@@ -71,9 +71,7 @@
 
     <div class="form-group">
         <label for="satuan" class="form-label">Satuan</label>
-        <select id="satuan" class="form-select" readonly>
-            <option value="">Pilih Bandwidth Terlebih Dahulu</option>
-        </select>
+        <div id="satuan" class="form-control-plaintext">Pilih Bandwidth Terlebih Dahulu</div>
     </div>
 
     <div class="form-group">
@@ -88,7 +86,6 @@
     $(document).ready(function(){
         $('#kategori').on('change', function(){
             var id_kategori = $(this).val();
-            // console.log(id_kategori);
             if(id_kategori){
                 $.ajax({
                     url: '/services/' + id_kategori,
@@ -98,28 +95,27 @@
                     },
                     dataType: 'json',
                     success:function(data){
-                    if(data){
-                        $('#subkategori').empty();
-                        $('#subkategori').append('<option value="">Pilih Subkategori</option>');
-                        $.each(data, function(key, value){
-                            $('#subkategori').append('<option value="'+ value.id_subkategori +'">'+ value.subkategori +'</option>');
-                        });
-                    }else{
-                        $('#subkategori').empty();
+                        if(data){
+                            $('#subkategori').empty();
+                            $('#subkategori').append('<option value="">Pilih Subkategori</option>');
+                            $.each(data, function(key, value){
+                                $('#subkategori').append('<option value="'+ value.id_subkategori +'">'+ value.subkategori +'</option>');
+                            });
+                        } else {
+                            $('#subkategori').empty();
+                        }
                     }
-                }
-             });
-            }else{
+                });
+            } else {
                 $('#subkategori').empty();
             }
         });
 
         $('#subkategori').on('change', function(){
             var id_subkategori = $(this).val();
-            console.log(id_subkategori);
             if(id_subkategori){
                 $.ajax({
-                    url: '/services/' + id_subkategori,
+                    url: '/bandwidth/' + id_subkategori,
                     type: 'GET',
                     data: {
                         '_token': '{{csrf_token()}}'
@@ -127,23 +123,53 @@
                     dataType: 'json',
                     success:function(data){
                         console.log(data);
-
-                    if(data){
-                        $('#bandwidth').empty();
-                        $('#bandwidth').append('<option value="">Pilih Bandwidth</option>');
-                        $.each(data, function(key, value){
-                            $('#bandwidth').append('<option value="'+ value.id_bandwidth +'">'+ value.bandwidth +'</option>');
-                        });
-                    }else{
-                        $('#bandwidth').empty();
+                        if(data){
+                            $('#bandwidth').empty();
+                            $('#bandwidth').append('<option value="">Pilih Bandwidth</option>');
+                            $.each(data, function(key, value){
+                                $('#bandwidth').append('<option value="'+ value.bandwidth +'">'+ value.bandwidth +'</option>');
+                            });
+                        } else {
+                            $('#bandwidth').empty();
+                        }
                     }
-                }
-             });
-            }else{
+                });
+            } else {
                 $('#bandwidth').empty();
             }
         });
+
+        $('#bandwidth').on('change', function(){
+        var details = $(this).val(); 
+        console.log('bandwidth yang dipilih',details); 
+        if(details){
+            $.ajax({
+                url: '/details/' + details,
+                type: 'GET',
+                data: {
+                    '_token': '{{csrf_token()}}'
+                },
+                dataType: 'json',
+                success:function(data){
+                    console.log(data);
+                    if(data){
+                        $('#satuan').empty(); 
+                        $('#satuan').text(data.satuan);
+                        $('#harga').text('Harga: Rp.' + data.harga);
+                    } else {
+                        $('#satuan').empty(); 
+                        $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+                    }
+                },
+            });
+        } else {
+            $('#satuan').empty(); 
+            $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+        }
     });
+
+    });
+
 </script>
 
 </body>
