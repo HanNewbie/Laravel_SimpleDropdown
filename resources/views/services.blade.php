@@ -70,14 +70,15 @@
     </div>
 
     <div class="form-group">
-        <label for="satuan" class="form-label">Satuan</label>
-        <div id="satuan" class="form-control-plaintext">Pilih Bandwidth Terlebih Dahulu</div>
+        <label for="satuan" class="form-label" >Satuan</label>
+        <div id="satuan" class="form-control-plaintext" style="font-weight: bold;">-</div>
     </div>
 
     <div class="form-group">
         <label for="harga" class="form-label">Harga</label>
         <div id="harga" class="result-box">Pilih kategori terlebih dahulu</div>
     </div>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -153,13 +154,25 @@
                 success:function(data){
                     console.log(data);
                     if(data){
-                        $('#satuan').empty(); 
+                        $('#satuan').empty();
                         $('#satuan').text(data.satuan);
-                        $('#harga').text('Harga: Rp.' + data.harga);
+                        
+                        var harga = data.harga;
+                        var formatter = new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        });
+
+                        var formattedHarga = formatter.format(harga); 
+                        
+                        $('#harga').text('Harga: ' + formattedHarga);
                     } else {
-                        $('#satuan').empty(); 
+                        $('#satuan').empty();
                         $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
                     }
+
                 },
             });
         } else {
