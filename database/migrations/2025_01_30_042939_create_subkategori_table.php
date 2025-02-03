@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subkategori', function (Blueprint $table) {
-            $table->integer('id_subkategori')->primary();
-            $table->integer('id_kategori');
+            $table->string('id_subkategori')->primary();
+            $table->string('id_kategori');
             $table->string('subkategori');
 
             $table->foreign('id_kategori')->references('id_kategori')->on('kategori');

@@ -9,23 +9,19 @@ use Illuminate\Database\Eloquent\Model;
 class Subcategory extends Model
 {
     use HasFactory;
-
     protected $table = 'subkategori';
-    protected $primaryKey = 'id_subkategori'; 
-    public $timestamps = false;
-    protected $fillable = [
-        'id_subkategori', '
-        id_kategori', 
-        'subkategori',
-    ];
+    protected $primaryKey = 'id_subkategori';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $fillable = ['id_subkategori', 'id_kategori', 'subkategori'];
 
-    public function category()
+    public function kategori()
     {
-        return $this->belongsTo(Category::class, 'id_kategori');
+        return $this->belongsTo(Category::class, 'id_kategori', 'id_kategori');
     }
 
     public function layanan()
     {
-        return $this->hasMany(Layanan::class, 'id_subkategori');
+        return $this->hasMany(Layanan::class, 'id_subkategori', 'id_subkategori');
     }
 }

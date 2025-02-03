@@ -1,144 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilih Layanan</title>
-    <!-- Menambahkan Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Menambahkan FontAwesome untuk ikon -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: #f8f9fa;
-            padding-top: 50px;
         }
-
         .container {
             max-width: 600px;
-            margin: 0 auto;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
-        h1 {
-            text-align: center;
+        h2 {
             color: #343a40;
-            margin-bottom: 30px;
-        }
-
-        .dropdown-container {
+            text-align: center;
             margin-bottom: 20px;
         }
-
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
+        .form-group {
+            margin-bottom: 15px;
         }
-
-        #price {
-            font-size: 18px;
-            margin-top: 20px;
+        .result-box {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
             text-align: center;
+            font-size: 20px;
             font-weight: bold;
+            background-color: #e9ecef;
+        }
+        select[readonly] {
+            pointer-events: none;
+            background-color: #e9ecef;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <form>
-            <!-- Dropdown Kategori -->
-            <div class="dropdown-container">
-                <label for="category" class="form-label">Kategori</label>
-                <select id="category" name="category" class="form-select">
-                    <option value="">Pilih Kategori</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id_kategori }}">{{ $category->kategori }}</option>
-                    @endforeach
-                </select>
-            </div>
+<div class="container">
+    <h2>Pilih Layanan</h2>
 
-            <!-- Dropdown Subkategori -->
-            <div class="dropdown-container">
-                <label for="subcategory" class="form-label">Subkategori</label>
-                <select id="subcategory" name="subcategory" class="form-select" disabled>
-                    <option value="">Pilih Subkategori</option>
-                </select>
-            </div>
-
-            <!-- Dropdown Bandwidth -->
-            <div class="dropdown-container">
-                <label for="bandwidth" class="form-label">Bandwidth</label>
-                <select id="bandwidth" name="bandwidth" class="form-select" disabled>
-                    <option value="">Pilih Bandwidth</option>
-                </select>
-            </div>
-
-            <!-- Harga -->
-            <div id="price">
-                <span>Harga: </span><strong id="price-value">-</strong>
-            </div>
-        </form>
+    <div class="form-group">
+        <label for="kategori" class="form-label">Kategori</label>
+        <select id="kategori" class="form-select">
+            <option value="">Pilih Kategori</option>
+            @foreach($kategori as $kat)
+                <option value="{{ $kat->id_kategori }}">{{ $kat->kategori }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <!-- Menambahkan jQuery dan Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="form-group">
+        <label for="subkategori" class="form-label">Subkategori</label>
+        <select id="subkategori" class="form-select">
+            <option value="">Pilih Subkategori</option>
+        </select>
+    </div>
 
-    <script>
-       $(document).ready(function() {
-            // Ketika kategori dipilih
-            $('#category').on('change', function() {
-                var categoryId = $(this).val();
-                if (categoryId) {
-                    $.get('/subcategories/' + categoryId, function(data) {
-                        $('#subcategory').prop('disabled', false).empty();
-                        $('#subcategory').append('<option value="">Pilih Subkategori</option>');
-                        $.each(data, function(key, subcategory) {
-                            $('#subcategory').append('<option value="'+subcategory.id_subkategori+'">'+subcategory.subkategori+'</option>');
+    <div class="form-group">
+        <label for="bandwidth" class="form-label">Bandwidth</label>
+        <select id="bandwidth" class="form-select">
+            <option value="">Pilih Bandwidth</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="satuan" class="form-label">Satuan</label>
+        <select id="satuan" class="form-select" readonly>
+            <option value="">Pilih Bandwidth Terlebih Dahulu</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="harga" class="form-label">Harga</label>
+        <div id="harga" class="result-box">Pilih kategori terlebih dahulu</div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $('#kategori').on('change', function(){
+            var id_kategori = $(this).val();
+            // console.log(id_kategori);
+            if(id_kategori){
+                $.ajax({
+                    url: '/services/' + id_kategori,
+                    type: 'GET',
+                    data: {
+                        '_token': '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success:function(data){
+                    if(data){
+                        $('#subkategori').empty();
+                        $('#subkategori').append('<option value="">Pilih Subkategori</option>');
+                        $.each(data, function(key, value){
+                            $('#subkategori').append('<option value="'+ value.id_subkategori +'">'+ value.subkategori +'</option>');
                         });
-                    });
-                } else {
-                    $('#subcategory').prop('disabled', true).empty();
-                    $('#bandwidth').prop('disabled', true).empty();
-                    $('#price-value').text('-');
+                    }else{
+                        $('#subkategori').empty();
+                    }
                 }
-            });
-
-            // Ketika subkategori dipilih
-            $('#subcategory').on('change', function() {
-                var subcategoryId = $(this).val();
-                if (subcategoryId) {
-                    $.get('/bandwidth/' + subcategoryId, function(data) {
-                        $('#bandwidth').prop('disabled', false).empty();
-                        $('#bandwidth').append('<option value="">Pilih Bandwidth</option>');
-                        $.each(data, function(key, bandwidth) {
-                            $('#bandwidth').append('<option value="'+bandwidth.id_layanan+'">'+bandwidth.bandwidth+'</option>');
-                        });
-                    });
-                } else {
-                    $('#bandwidth').prop('disabled', true).empty();
-                    $('#price-value').text('-');
-                }
-            });
-
-            // Ketika bandwidth dipilih
-            $('#bandwidth').on('change', function() {
-                var bandwidthId = $(this).val();
-                if (bandwidthId) {
-                    $.get('/harga/' + bandwidthId, function(data) {
-                        if (data.harga) {
-                            $('#price-value').text(data.harga);
-                        } else {
-                            $('#price-value').text('Harga tidak ditemukan');
-                        }
-                    });
-                }
-            });
+             });
+            }else{
+                $('#subkategori').empty();
+            }
         });
 
-    </script>
+        $('#subkategori').on('change', function(){
+            var id_subkategori = $(this).val();
+            console.log(id_subkategori);
+            if(id_subkategori){
+                $.ajax({
+                    url: '/services/' + id_subkategori,
+                    type: 'GET',
+                    data: {
+                        '_token': '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success:function(data){
+                        console.log(data);
+
+                    if(data){
+                        $('#bandwidth').empty();
+                        $('#bandwidth').append('<option value="">Pilih Bandwidth</option>');
+                        $.each(data, function(key, value){
+                            $('#bandwidth').append('<option value="'+ value.id_bandwidth +'">'+ value.bandwidth +'</option>');
+                        });
+                    }else{
+                        $('#bandwidth').empty();
+                    }
+                }
+             });
+            }else{
+                $('#bandwidth').empty();
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

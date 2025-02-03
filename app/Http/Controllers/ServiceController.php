@@ -12,30 +12,23 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
-        return view('services', compact('categories'));
+        $kategori = Category::all();
+        return view('services', compact('kategori'));
     }
 
-    public function getSubcategories($categoryId)
+    public function getSubkategori($id_kategori)
     {
-        $subcategories = Subcategory::where('id_kategori', $categoryId)->get();
-        return response()->json($subcategories);
+        $subkategori = Subcategory::where('id_kategori', $id_kategori)->get();
+        return response()->json($subkategori);
     }
 
-    public function getBandwidth($subcategoryId)
+    public function getBandwidth($id_subkategori)
     {
-        $bandwidth = Layanan::where('id_subkategori', $subcategoryId)->get();
+        $bandwidth = Layanan::where('id_subkategori', $id_subkategori)->get(['id_layanan', 'bandwidth']);
+
         return response()->json($bandwidth);
     }
 
-    public function getHarga($bandwidthId)
-    {
-        $layanan = Layanan::find($bandwidthId);
-        if ($layanan) {
-            return response()->json($layanan);
-        }
-        return response()->json(['harga' => 'Harga tidak ditemukan'], 404);
-    }
 }
 
 

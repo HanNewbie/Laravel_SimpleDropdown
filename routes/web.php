@@ -10,7 +10,6 @@ Route::get('/', function () {
 
 
 Route::get('/services', [ServiceController::class, 'index']);
-Route::get('/subcategories/{categoryId}', [ServiceController::class, 'getSubcategories']);
-Route::get('/bandwidth/{subcategoryId}', [ServiceController::class, 'getBandwidth']);
-Route::get('/harga/{bandwidthId}', [ServiceController::class, 'getHarga']); 
-
+Route::get('/services/{id_kategori}', [ServiceController::class, 'getSubkategori']);
+Route::get('/services/{id_subkategori}', [ServiceController::class, 'getBandwidth']);
+    
