@@ -38,6 +38,26 @@
             pointer-events: none;
             background-color: #e9ecef;
         }
+
+        .satuan-box {
+        border: 1px solid #ced4da;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #ffffff;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nama-layanan-box {
+        border: 1px solid #ced4da;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #ffffff;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+    }
     </style>
 </head>
 <body>
@@ -70,21 +90,40 @@
     </div>
 
     <div class="form-group">
-        <label for="satuan" class="form-label" >Satuan</label>
-        <div id="satuan" class="form-control-plaintext" style="font-weight: bold;">-</div>
+    <label for="satuan" class="form-label">Satuan</label>
+    <div class="satuan-box">
+        <span id="satuan">Pilih Bandwidth Terlebih Dahulu</span>
+    </div>
+    </div>
+
+    <div class="form-group">
+    <label for="nama_layanan" class="form-label">Nama Layanan</label>
+    <div class="nama-layanan-box">
+        <span id="nama_layanan">Pilih Kategori dan Subkategori</span>
+    </div>
     </div>
 
     <div class="form-group">
         <label for="harga" class="form-label">Harga</label>
         <div id="harga" class="result-box">Pilih kategori terlebih dahulu</div>
     </div>
-
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    $(document).ready(function(){
+     $(document).ready(function(){
+        function NamaLayanan() {
+            var kategori = $('#kategori option:selected').text();
+            var subkategori = $('#subkategori option:selected').text();
+
+            if (kategori && kategori !== "Pilih Kategori" && subkategori && subkategori !== "Pilih Subkategori") {
+                $('#nama_layanan').text(kategori + " _ " + subkategori);
+            } else {
+                $('#nama_layanan').text("Pilih Kategori dan Subkategori");
+            }
+        }
+
         $('#kategori').on('change', function(){
             var id_kategori = $(this).val();
             if(id_kategori){
@@ -110,6 +149,7 @@
             } else {
                 $('#subkategori').empty();
             }
+            NamaLayanan();
         });
 
         $('#subkategori').on('change', function(){
@@ -123,7 +163,7 @@
                     },
                     dataType: 'json',
                     success:function(data){
-                        console.log(data);
+                        console.log(data);  
                         if(data){
                             $('#bandwidth').empty();
                             $('#bandwidth').append('<option value="">Pilih Bandwidth</option>');
@@ -138,48 +178,41 @@
             } else {
                 $('#bandwidth').empty();
             }
+            NamaLayanan();
         });
 
         $('#bandwidth').on('change', function(){
-        var details = $(this).val(); 
-        console.log('bandwidth yang dipilih',details); 
-        if(details){
-            $.ajax({
-                url: '/details/' + details,
-                type: 'GET',
-                data: {
-                    '_token': '{{csrf_token()}}'
-                },
-                dataType: 'json',
-                success:function(data){
-                    console.log(data);
-                    if(data){
-                        $('#satuan').empty();
-                        $('#satuan').text(data.satuan);
-                        
-                        var harga = data.harga;
-                        var formatter = new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        });
-
-                        var formattedHarga = formatter.format(harga); 
-                        
-                        $('#harga').text('Harga: ' + formattedHarga);
-                    } else {
-                        $('#satuan').empty();
-                        $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+            var selectedBandwidth = $(this).val().trim();
+            var selectedSubkategori = $('#subkategori').val();
+            console.log(selectedBandwidth, selectedSubkategori);
+            if (selectedBandwidth && selectedSubkategori) {
+                $.ajax({
+                    url: '/details/' + selectedBandwidth,
+                    type: 'GET',
+                    data: {
+                        '_token': '{{csrf_token()}}',
+                        'id_subkategori': selectedSubkategori
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(data);  
+                        if (data && data.harga) {
+                            $('#satuan').text(data.satuan.trim());
+                            $('#harga').text('Harga: Rp' + parseInt(data.harga).toLocaleString('id-ID'));
+                        } else {
+                            $('#satuan').text("Pilih Bandwidth Terlebih Dahulu");
+                            $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error AJAX:", status, error);
                     }
-
-                },
-            });
-        } else {
-            $('#satuan').empty(); 
-            $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
-        }
-    });
+                });
+            } else {
+                $('#satuan').text("Pilih Bandwidth Terlebih Dahulu");
+                $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+            }
+        });
 
     });
 
