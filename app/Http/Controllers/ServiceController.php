@@ -34,6 +34,7 @@ class ServiceController extends Controller
         return response()->json($bandwidth);
     }
 
+    //FUNGSI UNTUK MENGAMBIL DETAIL LAYANAN BERDASARKAN BANDWIDTH
     public function getDetails(Request $request, $bandwidth)
     {
         $id_subkategori = $request->input('id_subkategori');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Layanan</title>
+    <title>Katalog</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -112,6 +112,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    //Fungsi untuk menampilkan nama layanan/Kategori
      $(document).ready(function(){
         function NamaLayanan() {
             var kategori = $('#kategori option:selected').text();
@@ -124,6 +125,7 @@
             }
         }
 
+        //Fungsi untuk menampilkan subkategori
         $('#kategori').on('change', function(){
             var id_kategori = $(this).val();
             if(id_kategori){
@@ -135,6 +137,7 @@
                     },
                     dataType: 'json',
                     success:function(data){
+                        console.log(data);
                         if(data){
                             $('#subkategori').empty();
                             $('#subkategori').append('<option value="">Pilih Subkategori</option>');
@@ -152,8 +155,10 @@
             NamaLayanan();
         });
 
+        //Fungsi untuk menampilkan bandwidth
         $('#subkategori').on('change', function(){
             var id_subkategori = $(this).val();
+            console.log(id_subkategori);
             if(id_subkategori){
                 $.ajax({
                     url: '/bandwidth/' + id_subkategori,
@@ -181,6 +186,7 @@
             NamaLayanan();
         });
 
+        //Fungsi untuk menampilkan satuan dan harga
         $('#bandwidth').on('change', function(){
             var selectedBandwidth = $(this).val().trim();
             var selectedSubkategori = $('#subkategori').val();
