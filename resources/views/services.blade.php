@@ -107,6 +107,7 @@
         <label for="harga" class="form-label">Harga</label>
         <div id="harga" class="result-box">Pilih kategori terlebih dahulu</div>
     </div>
+    <div></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
