@@ -49,6 +49,20 @@ class ServiceController extends Controller
             return response()->json([]);
         }
     }
+
+    public function getPPN(Request $request)
+    {
+        $harga = $request->harga;
+        $ppn = $request->ppn;
+
+        if (is_numeric($harga) && is_numeric($ppn)) {
+            $hargaPPN = $harga + ($harga * ($ppn / 100));
+            return response()->json(['hargaPPN' => number_format($hargaPPN, 0, ',', '.')]);
+        }
+
+        return response()->json(['hargaPPN' => '-']);
+    }
+    
 }
 
 

@@ -103,31 +103,35 @@
     </div>
     </div>
 
+    <form id="hargaForm">
+        <div class="form-group">
+            <label for="ppn">PPn</label>
+            <select name="ppn" id="ppn" class="form-control" required>
+                <option value="">--Pilih PPN--</option>
+                <option value="11">11 %</option>
+                <option value="12">12 %</option>
+            </select>
+        </div>
+    </form>
+
     <div class="form-group">
-        <label for="harga" class="form-label">Harga</label>
-        <div id="harga" class="result-box">Pilih kategori terlebih dahulu</div>
+        <span for="harga" class="form-label">Harga Sebelum PPN</span>
+    <div id="harga">-</div>
+
+    <div class="form-group">
+        <span for="ppn" class="form-label">Harga Setelah PPN</span>
+        <div id="hargaPPN" class="result-box">-</div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    //Fungsi untuk menampilkan nama layanan/Kategori
-     $(document).ready(function(){
-        function NamaLayanan() {
-            var kategori = $('#kategori option:selected').text();
-            var subkategori = $('#subkategori option:selected').text();
-
-            if (kategori && kategori !== "Pilih Kategori" && subkategori && subkategori !== "Pilih Subkategori") {
-                $('#nama_layanan').text(kategori + " _ " + subkategori);
-            } else {
-                $('#nama_layanan').text("Pilih Kategori dan Subkategori");
-            }
-        }
-
+    $(document).ready(function(){
         //Fungsi untuk menampilkan subkategori
         $('#kategori').on('change', function(){
             var id_kategori = $(this).val();
+            console.log(id_kategori);
             if(id_kategori){
                 $.ajax({
                     url: '/services/' + id_kategori,
@@ -152,7 +156,6 @@
             } else {
                 $('#subkategori').empty();
             }
-            NamaLayanan();
         });
 
         //Fungsi untuk menampilkan bandwidth
@@ -188,9 +191,80 @@
 
         //Fungsi untuk menampilkan satuan dan harga
         $('#bandwidth').on('change', function(){
-            var selectedBandwidth = $(this).val().trim();
-            var selectedSubkategori = $('#subkategori').val();
-            console.log(selectedBandwidth, selectedSubkategori);
+        var selectedBandwidth = $(this).val().trim();
+        var selectedSubkategori = $('#subkategori').val();
+        console.log("Bandwidth : " + selectedBandwidth, "Subkategori : " +selectedSubkategori);
+        if (selectedBandwidth && selectedSubkategori) {
+            $.ajax({
+                url: '/details/' + selectedBandwidth,
+                type: 'GET',
+                data: {
+                    '_token': '{{csrf_token()}}',
+                    'id_subkategori': selectedSubkategori
+                },
+                dataType: 'json',
+                success: function(data){
+                    if (data && data.harga) {
+                        $('#satuan').text(data.satuan.trim());
+                        $('#harga').text('Harga: Rp' + parseInt(data.harga).toLocaleString('id-ID'));
+                        hitungHargaPPN();
+                    } else {
+                        $('#satuan').text("-");
+                        $('#harga').text('Harga: -');
+                        $('#hargaPPN').text('-');
+                    }
+                }
+            });
+            } else {
+                $('#satuan').text("-");
+                $('#harga').text('Harga: -');
+                $('#hargaPPN').text('-');
+            }
+             NamaLayanan(); 
+        });
+
+
+        //Fungsi untuk menampilkan nama layanan
+        function NamaLayanan() {
+            var kategori = $('#kategori option:selected').text();
+            var subkategori = $('#subkategori option:selected').text();
+
+            if (kategori && kategori !== "Pilih Kategori" && subkategori && subkategori !== "Pilih Subkategori") {
+                $('#nama_layanan').text(kategori + " _ " + subkategori);
+            } else {
+                $('#nama_layanan').text("Pilih Kategori dan Subkategori");
+            }
+        }
+
+        //Fungsi untuk menampilkan harga setelah PPN
+        function hitungHargaPPN() {
+            var hargaText = $('#harga').text().replace('Harga: Rp', '').replace(/\./g, '').trim();
+            var ppn = $('#ppn').val();
+            if (hargaText && !isNaN(hargaText) && ppn) {
+                $.ajax({
+                    url: '/ppn',
+                    type: 'POST',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                        'harga': hargaText,
+                        'ppn': ppn
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#hargaPPN').text('Rp ' + data.hargaPPN);
+                    }
+                });
+            } else {
+                $('#hargaPPN').text('-');
+            }
+        }
+
+        $('#ppn').on('change', function() {
+            hitungHargaPPN();
+        });
+
+        //Fungsi untuk Update otomatis jika bandwidth dirubah
+        function updateHarga(selectedBandwidth, selectedSubkategori) {
             if (selectedBandwidth && selectedSubkategori) {
                 $.ajax({
                     url: '/details/' + selectedBandwidth,
@@ -201,24 +275,29 @@
                     },
                     dataType: 'json',
                     success: function(data){
-                        console.log(data);  
                         if (data && data.harga) {
                             $('#satuan').text(data.satuan.trim());
                             $('#harga').text('Harga: Rp' + parseInt(data.harga).toLocaleString('id-ID'));
+                            hitungHargaPPN();
                         } else {
-                            $('#satuan').text("Pilih Bandwidth Terlebih Dahulu");
-                            $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+                            $('#satuan').text("-");
+                            $('#harga').text('Harga: -');
+                            $('#hargaPPN').text('-');
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.log("Error AJAX:", status, error);
                     }
                 });
             } else {
-                $('#satuan').text("Pilih Bandwidth Terlebih Dahulu");
-                $('#harga').text('Harga: Pilih bandwidth terlebih dahulu');
+                $('#satuan').text("-");
+                $('#harga').text('Harga: -');
+                $('#hargaPPN').text('-');
             }
-        });
+        }
+
+        $('#bandwidth').on('change', function(){
+            var selectedBandwidth = $(this).val().trim();
+            var selectedSubkategori = $('#subkategori').val();
+            updateHarga(selectedBandwidth, selectedSubkategori);
+        });        
 
     });
 
