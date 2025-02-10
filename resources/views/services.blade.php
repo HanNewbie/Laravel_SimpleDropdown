@@ -259,6 +259,7 @@
             }
         }
 
+        //Fungsi untuk menampilkan harga setelah PPN jika PPN dirubah
         $('#ppn').on('change', function() {
             hitungHargaPPN();
         });
@@ -292,13 +293,6 @@
                 $('#hargaPPN').text('-');
             }
         }
-
-        $('#bandwidth').on('change', function(){
-            var selectedBandwidth = $(this).val().trim();
-            var selectedSubkategori = $('#subkategori').val();
-            updateHarga(selectedBandwidth, selectedSubkategori);
-        });        
-
     });
 
 </script>
